@@ -160,21 +160,21 @@ export default function handler(req, res) {
               Share with someone 🌷
             </button>
   
-            <button
-              onclick="window.location.href='/api/create'"
-              style="
-                margin-top:10px;
-                padding:8px 14px;
-                border-radius:12px;
-                border:none;
-                background:transparent;
-                color:#999;
-                font-size:13px;
-                cursor:pointer;
-              "
-            >
-              Make your own ✨
-            </button>
+           <button
+  onclick="window.location.href='/api/create'"
+  style="
+    margin-top:14px;
+    padding:10px 16px;
+    border-radius:14px;
+    border:1px dashed ${isNight ? "#555" : "#f1a7c6"};
+    background:${isNight ? "transparent" : "#fff0f6"};
+    color:${isNight ? "#ccc" : "#c2255c"};
+    font-size:14px;
+    cursor:pointer;
+  "
+>
+  Create one for yourself ✨
+</button>
   
           </div>
         </body>
