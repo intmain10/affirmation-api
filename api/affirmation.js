@@ -1,6 +1,5 @@
 export default function handler(req, res) {
     /* ---------------- SAFETY ---------------- */
-    res.setHeader("Content-Type", "text/html");
     res.setHeader("Cache-Control", "no-store");
   
     const escapeHTML = (str = "") =>
@@ -19,8 +18,12 @@ export default function handler(req, res) {
       "Something warm for you"
     ];
   
-    const rawName = req.query.name;
-    const name = rawName ? escapeHTML(rawName) : null;
+    const rawName = (req.query.name || "").trim();
+    const name =
+      rawName.length >= 2 && /^[a-zA-Z\s]+$/.test(rawName)
+        ? escapeHTML(rawName)
+        : null;
+  
     const opener = openers[Math.floor(Math.random() * openers.length)];
     const greeting = name ? `${opener}, ${name}` : opener;
   
@@ -28,13 +31,6 @@ export default function handler(req, res) {
   
     const hour = new Date().getHours();
     const isNight = hour >= 19 || hour < 6;
-  
-    const background = isNight
-      ? "linear-gradient(135deg, #1c1c2b, #2c2c44)"
-      : "linear-gradient(135deg, #fff0f6, #ffe3ec)";
-  
-    const cardBg = isNight ? "#26263d" : "#ffffff";
-    const textColor = isNight ? "#f5c2e7" : "#d63384";
   
     const subText = isNight
       ? "Hope today treated you kindly 🌙"
@@ -71,14 +67,6 @@ export default function handler(req, res) {
       "You make ordinary moments feel nicer.",
       "You feel like home in a soft, unexplainable way.",
       "You’re the kind of person people remember fondly.",
-      "You deserve love that feels easy, not confusing.",
-      "You’re not too much. You’re just right.",
-      "You have a way of making people feel heard.",
-      "You’re the calm in someone’s chaos.",
-      "You don’t need to earn affection. You already deserve it.",
-      "You bring peace into spaces without trying.",
-      "You have a beautiful emotional depth.",
-      "You’re someone worth showing up for.",
   
       // 🇳🇵 Nepali-vibe
       "You remind me of quiet places that feel safe.",
@@ -97,7 +85,33 @@ export default function handler(req, res) {
   
     const message = pool[Math.floor(Math.random() * pool.length)];
   
-    /* ---------------- RESPONSE ---------------- */
+    /* ==================================================
+       📱 JSON MODE (for Android / apps)
+       ================================================== */
+  
+    if (req.query.format === "json") {
+      res.setHeader("Content-Type", "application/json");
+  
+      return res.status(200).json({
+        greeting,
+        message,
+        isNight,
+        pickupEnabled: showPickup
+      });
+    }
+  
+    /* ==================================================
+       🌐 HTML MODE (browser / sharing)
+       ================================================== */
+  
+    res.setHeader("Content-Type", "text/html");
+  
+    const background = isNight
+      ? "linear-gradient(135deg, #1c1c2b, #2c2c44)"
+      : "linear-gradient(135deg, #fff0f6, #ffe3ec)";
+  
+    const cardBg = isNight ? "#26263d" : "#ffffff";
+    const textColor = isNight ? "#f5c2e7" : "#d63384";
   
     res.status(200).send(`
       <html>
@@ -113,7 +127,7 @@ export default function handler(req, res) {
           display:flex;
           align-items:center;
           justify-content:center;
-          height:100vh;
+          min-height:100vh;
         ">
   
           <div style="
@@ -160,21 +174,22 @@ export default function handler(req, res) {
               Share with someone 🌷
             </button>
   
-           <button
-  onclick="window.location.href='/api/create'"
-  style="
-    margin-top:14px;
-    padding:10px 16px;
-    border-radius:14px;
-    border:1px dashed ${isNight ? "#555" : "#f1a7c6"};
-    background:${isNight ? "transparent" : "#fff0f6"};
-    color:${isNight ? "#ccc" : "#c2255c"};
-    font-size:14px;
-    cursor:pointer;
-  "
->
-  Create one for yourself ✨
-</button>
+            <button
+              onclick="window.location.href='/api/create'"
+              style="
+                margin-top:16px;
+                padding:12px 18px;
+                border-radius:16px;
+                border:none;
+                background:${isNight ? "#2f2f48" : "#ffe3ec"};
+                color:${isNight ? "#f5c2e7" : "#a61e4d"};
+                font-size:15px;
+                cursor:pointer;
+                width:100%;
+              "
+            >
+              ✨ Create your own affirmation link
+            </button>
   
           </div>
         </body>
